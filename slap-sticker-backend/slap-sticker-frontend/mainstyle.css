@@ -1,13 +1,23 @@
 mainstyle.css
 body, html {
+    background-image: url("paint-paint-splashes-paint-splash-drop-preview.jpg");
     width: 100%;
 }
 
-.wrapper {
-    max-width: 900px;
-    width: 80%;
+.inner-background{
+    background-color: white;
+    padding-top: 100px;
     margin: auto;
+    height: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 10%;
+    right: 10%;
+}
+.wrapper {
     font-family: "Arial";
+    background-color: white;
+    padding-bottom: 50px;
 }
 
 .toolbar{
@@ -25,12 +35,10 @@ body, html {
     color: white;
 }
 
-/* Change color on hover */
 .toolbar a:hover {
     background-color: #000;
 }
 
-/* Change color on selected icon */
 .selected {
     background-color: #000; 
 }
@@ -46,7 +54,6 @@ body, html {
     height: 200px;
 }
 
-/* Resize image to container */
 .toolbar a img{
     max-width:100%;
     height:auto;
@@ -58,4 +65,18 @@ body, html {
 
 .sticker-display {
     border: 3px solid #000000;
+}
+
+#page-contents {
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+.gallery-card {
+    background-image: url(frame.jpg);
+    background-size:100% 100%;
+    padding-left: 120px;
+    padding-top: 120px;
+    padding-bottom: 120px;
+    margin-top: 50px;
 }

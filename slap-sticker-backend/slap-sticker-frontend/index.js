@@ -2,9 +2,12 @@ const login = document.querySelector(".login")
 const loginForm = document.querySelector("#login-form")
 const contents = document.querySelector('#page-contents')
 const pageTitle = document.querySelector('#page-title')
-const header = document.querySelector('.header')
+const header = document.querySelector('#header')
 const canvas = document.createElement('canvas')
 const infoForm = document.querySelector('#info-form')
+
+const usernameCont = document.querySelector('#username')
+const balanceCont = document.querySelector('#balance-count')
 canvas.id = "my-canvas"
 canvas.width = "600"
 canvas.height = "300"
@@ -86,7 +89,7 @@ function userLogin(e) {
         login.addEventListener('click', function(e) {
             logOut()
         })
-        login.parentElement.querySelector('h3').innerText = user.username
+        usernameCont.innerText = user.username
         loginForm.remove()
         buildHeader(user.balance)
         displayGallery(user)
@@ -97,8 +100,9 @@ function userLogin(e) {
 function logOut(){
     pageTitle.innerText = "Please Log In"
     login.dataset.id = ''
-    login.parentElement.querySelector('h3').innerText = ''
+    usernameCont.innerText = ''
     contents.innerHTML = ''
+    balanceCont.innerText = ''
     contents.appendChild(loginForm)
     let paras = document.getElementsByClassName('header-toggle');
     while(paras[0]) {
@@ -123,6 +127,8 @@ function displayGallery(user) {
 
 function displayImage(image) {
     const imageCard = document.createElement('div')
+    imageCard.className = 'gallery-card'
+    
 
     const imageDisp = document.createElement('img')
     if (image.imgdata) {
@@ -137,6 +143,7 @@ function displayImage(image) {
         createCanvas()
         OpenImage()
     })
+    editButton.className = "btn-success"
 
     const deleteButton = document.createElement('button')
     deleteButton.innerText = "Delete Picture"
@@ -144,6 +151,7 @@ function displayImage(image) {
     deleteButton.addEventListener('click', function(e) {
         deleteImage(e.target.dataset.id)
     })
+    deleteButton.className = "btn-danger"
 
     const imgTitle = document.createElement('h4')
     if (image.title) {
@@ -173,46 +181,50 @@ function displayImage(image) {
 }
 
 function buildHeader(balance){
+    const galleryLink = document.createElement('li')
     const galleryButton = document.createElement('button')
     galleryButton.innerText = "My Gallery"
-    galleryButton.className = "header-toggle"
+    galleryLink.className = "header-toggle"
     galleryButton.addEventListener('click', function(e){
         getGallery()
     })
+    galleryLink.appendChild(galleryButton)
 
+    const stickersLink = document.createElement('li')
     const stickersButton = document.createElement('button')
     stickersButton.innerText = "My Stickers"
-    stickersButton.className = "header-toggle"
+    stickersLink.className = "header-toggle"
     stickersButton.addEventListener('click', function(e) {
         getStickers()
     })
+    stickersLink.appendChild(stickersButton)
 
+    const storeLink = document.createElement('li')
     const storeButton = document.createElement('button')
     storeButton.innerText = "Store"
-    storeButton.className = "header-toggle"
+    storeLink.className = "header-toggle"
     storeButton.addEventListener('click', function(e) {
         renderStore()
     })
+    storeLink.appendChild(storeButton)
 
+    const newDrawingLink = document.createElement('li')
     const newDrawingButton = document.createElement('button')
     newDrawingButton.innerText = "New Drawing"
-    newDrawingButton.className = "header-toggle"
+    newDrawingLink.className = "header-toggle"
     newDrawingButton.addEventListener('click', function(e) {
         canvas.dataset.id = ''
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         createCanvas()
     })
+    newDrawingLink.appendChild(newDrawingButton)
 
-    const balanceCount = document.createElement('h4')
-    balanceCount.id = 'balance-count'
-    balanceCount.innerText = `Current Balance: $${balance}`
-    balanceCount.className = "header-toggle"
+    balanceCont.innerText = `Current Balance: $${balance}`
 
-    header.appendChild(galleryButton)
-    header.appendChild(stickersButton)
-    header.appendChild(balanceCount)
-    header.appendChild(storeButton)
-    header.appendChild(newDrawingButton)
+    header.appendChild(galleryLink)
+    header.appendChild(stickersLink)
+    header.appendChild(storeLink)
+    header.appendChild(newDrawingLink)
 }
 
 function getGallery() {
@@ -487,6 +499,7 @@ function renderStore() {
     pageTitle.innerText = "Sticker Store"
     contents.innerHTML = ''
     const store = document.createElement('div')
+    store.className = "row flex-spaces"
     store.id = "store"
 
     fetch(`http://localhost:3000/images`)
@@ -504,10 +517,14 @@ function renderStore() {
 
 function renderStoreItem(image) {
     const imageCard = document.createElement('div')
+    imageCard.className = 'card'
+    imageCard.style.width = '40%'
 
     const imageDisp = document.createElement('img')
     imageDisp.src = image.imgdata
-    imageDisp.className = "sticker-display"
+
+    const cardBody = document.createElement('div')
+    cardBody.className = 'card-body'
 
     const imgTitle = document.createElement('h4')
     if (image.title) {
@@ -515,14 +532,17 @@ function renderStoreItem(image) {
     } else {
         imgTitle.innerText = "Untitled"
     }
+    imgTitle.className = 'card-title'
 
     imageCard.appendChild(imageDisp)
-    imageCard.appendChild(imgTitle)
+    imageCard.appendChild(cardBody)
 
     const seller = document.createElement('p')
     seller.innerText = `Drawn by: ${image.user.username}`
     const salePrice = document.createElement('p')
     salePrice.innerText = `Currently on sale for $${image.cost}`
+    seller.className = 'card-subtitle'
+    salePrice.className = 'card-text'
 
     const buyForm = document.createElement('form')
     buyForm.dataset.id = image.id
@@ -536,6 +556,7 @@ function renderStoreItem(image) {
     const buySubmit = document.createElement('input')
     buySubmit.type = 'submit'
     buySubmit.value = 'Buy'
+    buySubmit.className = "paper-btn btn-secondary"
 
     buyForm.appendChild(buyField)
     buyForm.appendChild(buySubmit)
@@ -546,9 +567,10 @@ function renderStoreItem(image) {
         e.target.reset()
     })
 
-    imageCard.appendChild(seller)
-    imageCard.appendChild(salePrice)
-    imageCard.appendChild(buyForm)
+    cardBody.appendChild(imgTitle)
+    cardBody.appendChild(seller)
+    cardBody.appendChild(salePrice)
+    cardBody.appendChild(buyForm)
 
 
     return imageCard
@@ -626,6 +648,7 @@ function getStickers() {
 function renderSticker(sticker) {
     const imageCard = document.createElement('div')
     let image = sticker.sticker
+    imageCard.className = 'gallery-card'
 
     const imageDisp = document.createElement('img')
     if (image.imgdata) {

@@ -5,37 +5,56 @@
         <meta name="viewport" content="width = device-width, initial-scale = 1">
         <title>SlapStick.er</title>
         <link rel="stylesheet" type="text/css" href="mainstyle.css">
+        <link rel="stylesheet" type="text/css" href="node_modules/papercss/dist/paper.css">
         
         
     </head>
     <body>
-        <div class="header">
-            <button class="login">Log Out</button>
-            <h1>SlapStick.er</h1>
-            <h3></h3>
-            
-        </div>
-        <div class="wrapper">
-            <h1 id="page-title">Please Log In</h1>
-            <div id="page-contents">
-                <form id="login-form">
-                    <label for="username">Username:</label><br>
-                    <input type="text" id="username" name="username"><br><br>
-                    <input type="submit" value="Submit">
-                </form>
-                <div id='jsc'>
-                    <script src="jscolor.js"></script>
-                Line Color: <input class="jscolor" value="000000">
-                </div>
-                <form id='info-form'>
-                    <label for="title">Title:</label><br>
-                    <input type="text" id="title" name="title"><br>
-                    <label for="cost">Store Price:</label><br>
-                    <input type="text" id="cost" name="cost">
-                    <input type="submit" value="Submit">
-                </form>
+        <nav class="border fixed split-nav">
+            <div class="nav-brand">
+                <h1>SlapStick.er</h1>
             </div>
+            <div class="collapsible">
+                <input id="collapsible1" type="checkbox" name="collapsible1">
+                <button>
+                <label for="collapsible1">
+                    <div class="bar1"></div>
+                    <div class="bar2"></div>
+                    <div class="bar3"></div>
+                </label>
+                </button>
+                <div class="collapsible-body">
+                <ul class="inline" id='header'>
+                    <li id='username'></li>
+                    <li id='balance-count'></li>
+                    <li><button class="login">Log Out</button></li>
+                </ul>
+                </div>
+            </div>
+        </nav>
+        <div class='inner-background'>
+            <div class="wrapper">
+                <h1 id="page-title">Please Log In</h1>
+                <div id="page-contents">
+                    <form id="login-form">
+                        <label for="username">Username:</label><br>
+                        <input type="text" id="username" name="username"><br><br>
+                        <input type="submit" value="Submit">
+                    </form>
+                    <div id='jsc'>
+                        <script src="jscolor.js"></script>
+                    Line Color: <input class="jscolor" value="000000">
+                    </div>
+                    <form id='info-form'>
+                        <label for="title">Title:</label><br>
+                        <input type="text" id="title" name="title"><br>
+                        <label for="cost">Store Price:</label><br>
+                        <input type="text" id="cost" name="cost">
+                        <input type="submit" value="Submit">
+                    </form>
+                </div>
 
+            </div>
         </div>
     </body>
     <script src="index.js"></script>
