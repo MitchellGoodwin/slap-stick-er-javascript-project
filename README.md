@@ -40,8 +40,14 @@ When you load up the page, you will first be met with a login screen. This is a 
 At the top of the page is the header. There are buttons with links to the gallery, store page, and sticker collection of the user. There is also a button to logout and return to the login screen, and a button to start up a new image. This will take you to the canvas with no image loaded.
 
 
-The canvas 
+The canvas has buttons below to change the tools and save and load the image. You can freely draw on the canvas with different colors and a fill tool. When you hit save, it will save the current state of the canvas to the database. When you click the load button, it will return the canvas to the last saved state of the image. Once the image has been saved once it will be visable on the gallery. From the canvas page, you can also edit your image, adding a title and price to the sticker. Finally, you can click a button to toggle wether the image is for sale or not.
+
+If you go to the store page, you will see the stickers up for sale by every user. You can buy stickers in different quantities and it will update both your own and the sellers balance. If you go an look at your stickers page you will see all the stickers you've purchased.
 
 
 
 ## Challenges Faced
+
+I didnt have any experience with canvas before starting this project. It presented many challenges. I had to brush off my old geometry knowledge for line drawing and finding the right pixel location. When it came to saving the image to the database, I had to find a good way to do so without taxing the user's computer, as the information attached to a custom image can be very large, at it turns out. 
+
+Of particular note, building the fill function to work was a pretty big challenge. It took me on a journey down the algorithm rabbit hole that I wasnt quite expecting. Eventually I properly implemented the right algorithm that theoretically worked the most efficiently by checking for all the pixels that needed to be filled in, without checking the same pixel twice, however it was still to intensive for a smooth experience. I eventually got it working by employing a 32 bit array to help manage the data to make it workable and really smooth for the user. Overall I'm really proud of how it turned out. 
