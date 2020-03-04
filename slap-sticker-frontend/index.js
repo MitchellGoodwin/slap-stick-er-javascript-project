@@ -16,7 +16,8 @@ let canvasHeight = 300
 
 const jscolorDiv = document.querySelector('#jsc')
 
-const jscolor = document.querySelector('.jscolor')
+const jscolor = document.querySelector('#paint-color')
+const fillColor = document.querySelector('#fill-color')
 
 
 const ctx = canvas.getContext('2d')
@@ -29,6 +30,7 @@ let brushXPoints = new Array();
 let brushYPoints = new Array();
 // Stores whether mouse is down
 let brushDownPos = new Array();
+let currentTool;
 
 // Stores size data used to create rubber band shapes
 // that will redraw as the user moves the mouse
@@ -245,6 +247,19 @@ function createCanvas() {
     canvas.addEventListener("mousedown", ReactToMouseDown);
     canvas.addEventListener("mousemove", ReactToMouseMove);
     canvas.addEventListener("mouseup", ReactToMouseUp);
+    canvas.addEventListener('mouseout', ReactToMouseOut);
+
+    const brushButton = document.createElement('button')
+    brushButton.innerText = "Brush"
+    brushButton.addEventListener('click', function(e) {
+        currentTool = 'brush'
+    })
+
+    const fillButton = document.createElement('button')
+    fillButton.innerText = "Fill"
+    fillButton.addEventListener('click', function(e) {
+        currentTool = 'fill'
+    })
 
     const saveButton = document.createElement('button')
     saveButton.innerText = "Save Sticker"
@@ -258,6 +273,10 @@ function createCanvas() {
         OpenImage()
     })
 
+    currentTool = 'brush'
+
+    contents.appendChild(brushButton)
+    contents.appendChild(fillButton)
     contents.appendChild(saveButton)
     contents.appendChild(loadButton)
 }
@@ -373,12 +392,23 @@ function ReactToMouseDown(e){
     mousedown.x = loc.x;
     mousedown.y = loc.y;
 
-    dragging = true;
+    if (currentTool === 'brush') {
+        dragging = true;
 
-    usingBrush = true;
-    AddBrushPoint(loc.x, loc.y);
+        usingBrush = true;
+        AddBrushPoint(loc.x, loc.y);
+    } else if (currentTool === 'fill') {
+        fillColorR = fillColor.style.backgroundColor.slice(4).slice(0,-1).split(', ')[0]
+        fillColorG = fillColor.style.backgroundColor.slice(4).slice(0,-1).split(', ')[1]
+        fillColorB = fillColor.style.backgroundColor.slice(4).slice(0,-1).split(', ')[2]
+        let r = parseInt(fillColorR);
+        let g = parseInt(fillColorG);
+        let b = parseInt(fillColorB);
+        var hex = (255   << 24) | ( b << 16) | ( g << 8) | r;
+        floodFill(loc.x, loc.y, (hex >>> 0))
+    }
 };
- 
+
 function ReactToMouseMove(e){
     canvas.style.cursor = "crosshair";
     loc = GetMousePosition(e.clientX, e.clientY);
@@ -394,8 +424,16 @@ function ReactToMouseMove(e){
         }
     }
 };
- 
+
 function ReactToMouseUp(e){
+    canvas.style.cursor = "default";
+    loc = GetMousePosition(e.clientX, e.clientY);
+    // UpdateRubberbandOnMove(loc);
+    dragging = false;
+    usingBrush = false;
+}
+
+function ReactToMouseOut(e){
     canvas.style.cursor = "default";
     loc = GetMousePosition(e.clientX, e.clientY);
     // UpdateRubberbandOnMove(loc);
@@ -598,7 +636,6 @@ function buySticker(e) {
             let sellerBalance = parseFloat(purchases[0].image.user.balance) + amount
             let buyerBalance = parseFloat(purchases[0].user.balance) - amount
             sellerId = purchases[0].image.user.id
-            debugger
             console.log(purchases)
             let configObj = {
                 method: "PATCH",
@@ -676,4 +713,45 @@ function renderSticker(sticker) {
     imageCard.appendChild(artistName)
 
     return imageCard
+}
+
+
+
+function floodFill(x, y, newColor) {
+    let left, right, leftEdge, rightEdge;
+    const w = canvasWidth, h = canvasHeight, pixels = w * h;
+    const imgData = ctx.getImageData(0, 0, w, h);
+    const p32 = new Uint32Array(imgData.data.buffer);
+    const stack = [parseInt(x) + (parseInt(y) * w)]; // add starting pos to stack
+    const targetColor = p32[stack[0]];
+    if (targetColor === newColor || targetColor === undefined) { return } // avoid endless loop
+    while (stack.length) {
+        let idx = stack.pop();
+        while(idx >= w && p32[idx - w] === targetColor) { idx -= w }; // move to top edge
+        right = left = false;   
+        leftEdge = (idx % w) === 0;          
+        rightEdge = ((idx +1) % w) === 0;
+        while (p32[idx] === targetColor) {
+            p32[idx] = newColor;
+            if(!leftEdge) {
+                if (p32[idx - 1] === targetColor) { // check left
+                    if (!left) {        
+                        stack.push(idx - 1);  // found new column to left
+                        left = true;  // 
+                    }
+                } else if (left) { left = false }
+            }
+            if(!rightEdge) {
+                if (p32[idx + 1] === targetColor) {
+                    if (!right) {
+                        stack.push(idx + 1); // new column to right
+                        right = true;
+                    }
+                } else if (right) { right = false }
+            }
+            idx += w;
+        }
+    }
+    ctx.putImageData(imgData,0, 0);
+    return;
 }
