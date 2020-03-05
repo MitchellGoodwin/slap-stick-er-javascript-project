@@ -33,15 +33,13 @@ ctx.strokeStyle = jscolor.value;
 ctx.lineWidth = 2;
 
 let dragging = false;
-// Stores line x & ys used to make brush lines
+
 let brushXPoints = new Array();
 let brushYPoints = new Array();
-// Stores whether mouse is down
+
 let brushDownPos = new Array();
 let currentTool;
 
-// Stores size data used to create rubber band shapes
-// that will redraw as the user moves the mouse
 class ShapeBoundingBox{
     constructor(left, top, width, height) {
         this.left = left;
@@ -53,7 +51,7 @@ class ShapeBoundingBox{
 
 let shapeBoundingBox = new ShapeBoundingBox(0,0,0,0);
 
-// Holds x & y position where clicked
+
 class MouseDownPos{
     constructor(x,y) {
         this.x = x,
@@ -61,7 +59,7 @@ class MouseDownPos{
     }
 }
 
-// Holds x & y location of the mouse
+
 class Location{
     constructor(x,y) {
         this.x = x,
@@ -69,9 +67,9 @@ class Location{
     }
 }
 
-// Holds x & y position where clicked
+
 let mousedown = new MouseDownPos(0,0);
-// Holds x & y location of the mouse
+
 let loc = new Location(0,0);
 
 document.addEventListener('DOMContentLoaded', function(e) {
@@ -456,7 +454,7 @@ function DrawBrush(){
         ctx.stroke();
     }
 }
- 
+
 function ReactToMouseDown(e){
     canvas.style.cursor = "crosshair";
     lastMouseDown = brushXPoints.length
@@ -514,7 +512,6 @@ function UpdateRubberbandOnMove(loc){
 function ReactToMouseUp(e){
     canvas.style.cursor = "default";
     loc = GetMousePosition(e.clientX, e.clientY);
-    // UpdateRubberbandOnMove(loc);
     dragging = false;
     usingBrush = false;
 }
@@ -522,7 +519,6 @@ function ReactToMouseUp(e){
 function ReactToMouseOut(e){
     canvas.style.cursor = "default";
     loc = GetMousePosition(e.clientX, e.clientY);
-    // UpdateRubberbandOnMove(loc);
     dragging = false;
     usingBrush = false;
 }
@@ -541,8 +537,10 @@ function deleteImage(id) {
 }
 
 function renderImageInfo(image) {
+    if (!document.querySelector('#info-title')) {
     imageTitle = document.createElement('h2')
     imageTitle.innerText = image.title 
+    imageTitle.id = 'info-title'
 
     imageCost = document.createElement('h4')
     imageCost.innerText = `The current cost is ${image.cost} dollars`
@@ -577,6 +575,7 @@ function renderImageInfo(image) {
     infoForm.querySelector('#title').value = image.title
     infoForm.querySelector('#cost').value = image.cost
     infoForm.dataset.id = image.id
+}
 }
 
 function renderInfoForm(){
@@ -780,17 +779,17 @@ function renderSticker(sticker) {
 
 function floodFill(x, y, newColor) {
     let left, right, leftEdge, rightEdge;
-    const w = canvasWidth, h = canvasHeight, pixels = w * h;
+    const w = canvasWidth, h = canvasHeight
     const imgData = ctx.getImageData(0, 0, w, h);
-    const p32 = new Uint32Array(imgData.data.buffer);
+    const p32 = new Uint32Array(imgData.data.buffer); // becomes one array of all pixels, so [0] is the top left pixel, [w] is the top right, [l * w] is the bottom right
     const stack = [parseInt(x) + (parseInt(y) * w)]; // add starting pos to stack
     const targetColor = p32[stack[0]];
     if (targetColor === newColor || targetColor === undefined) { return } // avoid endless loop
     while (stack.length) {
         let idx = stack.pop();
-        while(idx >= w && p32[idx - w] === targetColor) { idx -= w }; // move to top edge
+        while(idx >= w && p32[idx - w] === targetColor) { idx -= w }; // move to top edge, in this array subtracting by width moves the pixel location 'up' in the image
         right = left = false;   
-        leftEdge = (idx % w) === 0;          
+        leftEdge = (idx % w) === 0;  // remainder of dividing by width is distance to edge        
         rightEdge = ((idx +1) % w) === 0;
         while (p32[idx] === targetColor) {
             p32[idx] = newColor;
@@ -800,7 +799,7 @@ function floodFill(x, y, newColor) {
                         stack.push(idx - 1);  // found new column to left
                         left = true;  
                     }
-                } else if (left) { left = false }
+                } else if (left) { left = false } // once there is a break in the target color, start checking again to add to stack
             }
             if(!rightEdge) {
                 if (p32[idx + 1] === targetColor) {
