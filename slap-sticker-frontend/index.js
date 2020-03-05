@@ -290,6 +290,16 @@ function createCanvas() {
     selectedButton = brushButton;
     brushButton.className = "btn-warning"
 
+    const eraserButton = document.createElement('button')
+    eraserButton.innerText = "Eraser"
+    eraserButton.style.marginRight = '10px'
+    eraserButton.addEventListener('click', function(e) {
+        currentTool = 'eraser'
+        ctx.strokeStyle = '#FFFFFF'
+        changeSelectedButton(e.target)
+    })
+    
+
     const fillButton = document.createElement('button')
     fillButton.innerText = "Fill"
     fillButton.style.marginRight = '10px'
@@ -306,11 +316,27 @@ function createCanvas() {
         changeSelectedButton(e.target)
     })
 
+    const fillSquareButton = document.createElement('button')
+    fillSquareButton.innerText = "Fill Square"
+    fillSquareButton.style.marginRight = '10px'
+    fillSquareButton.addEventListener('click', function(e) {
+        currentTool = 'fillsquare'
+        changeSelectedButton(e.target)
+    })
+
     const circleButton = document.createElement('button')
     circleButton.innerText = "Circle"
     circleButton.style.marginRight = '10px'
     circleButton.addEventListener('click', function(e) {
         currentTool = 'circle'
+        changeSelectedButton(e.target)
+    })
+
+    const fillCircleButton = document.createElement('button')
+    fillCircleButton.innerText = "Fill Circle"
+    fillCircleButton.style.marginRight = '10px'
+    fillCircleButton.addEventListener('click', function(e) {
+        currentTool = 'fillcircle'
         changeSelectedButton(e.target)
     })
 
@@ -333,9 +359,12 @@ function createCanvas() {
     contents.appendChild(sliderLabel)
     contents.appendChild(lineSlider)
     contents.appendChild(brushButton)
+    contents.appendChild(eraserButton)
     contents.appendChild(fillButton)
     contents.appendChild(squareButton)
+    contents.appendChild(fillSquareButton)
     contents.appendChild(circleButton)
+    contents.appendChild(fillCircleButton)
     contents.appendChild(saveButton)
     contents.appendChild(loadButton)
 }
@@ -423,9 +452,16 @@ function UpdateRubberbandSizeData(loc){
 
 function drawRubberbandShape(loc){
     if (currentTool === 'square') {
-        ctx.fillRect(shapeBoundingBox.left, shapeBoundingBox.top, shapeBoundingBox.width, shapeBoundingBox.height)
         ctx.strokeRect(shapeBoundingBox.left, shapeBoundingBox.top, shapeBoundingBox.width, shapeBoundingBox.height)
     } else if (currentTool === 'circle') {
+        let radius = shapeBoundingBox.width;
+        ctx.beginPath();
+        ctx.arc(mousedown.x, mousedown.y, radius, 0, Math.PI * 2);
+        ctx.stroke();
+    } else if (currentTool === 'fillsquare') {
+        ctx.fillRect(shapeBoundingBox.left, shapeBoundingBox.top, shapeBoundingBox.width, shapeBoundingBox.height)
+        ctx.strokeRect(shapeBoundingBox.left, shapeBoundingBox.top, shapeBoundingBox.width, shapeBoundingBox.height)
+    } else if (currentTool === 'fillcircle') {
         let radius = shapeBoundingBox.width;
         ctx.beginPath();
         ctx.arc(mousedown.x, mousedown.y, radius, 0, Math.PI * 2);
@@ -458,7 +494,9 @@ function DrawBrush(){
 function ReactToMouseDown(e){
     canvas.style.cursor = "crosshair";
     lastMouseDown = brushXPoints.length
-    ctx.strokeStyle = `#${jscolor.value}`
+    if (currentTool !== 'eraser') {
+        ctx.strokeStyle = `#${jscolor.value}`
+    }
     ctx.fillStyle = `#${fillColor.value}`
     
     loc = GetMousePosition(e.clientX, e.clientY);
@@ -466,7 +504,7 @@ function ReactToMouseDown(e){
     mousedown.x = loc.x;
     mousedown.y = loc.y;
 
-    if (currentTool === 'brush') {
+    if (currentTool === 'brush' || currentTool === 'eraser') {
         dragging = true;
 
         usingBrush = true;
@@ -480,7 +518,7 @@ function ReactToMouseDown(e){
         let b = parseInt(fillColorB);
         var hex = (255   << 24) | ( b << 16) | ( g << 8) | r;
         floodFill(loc.x, loc.y, (hex >>> 0))
-    } else if (currentTool === 'square' || currentTool === 'circle') {
+    } else if (currentTool === 'square' || currentTool === 'circle' || currentTool === 'fillcircle' || currentTool === 'fillsquare') {
         savedImageData = ctx.getImageData(0,0,canvas.width,canvas.height);
         dragging = true;
     }
