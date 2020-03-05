@@ -4,6 +4,7 @@
         <meta charset="utf-8">        
         <meta name="viewport" content="width = device-width, initial-scale = 1">
         <title>SlapStick.er</title>
+        <script src="https://kit.fontawesome.com/63ca89ae9b.js" crossorigin="anonymous"></script>
         <link rel="stylesheet" type="text/css" href="mainstyle.css">
         <link rel="stylesheet" type="text/css" href="node_modules/papercss/dist/paper.css">
         
@@ -14,8 +15,9 @@
             <div class="nav-brand">
                 <h1>SlapStick.er</h1>
             </div>
+                
             <div class="collapsible">
-                <input id="collapsible1" type="checkbox" name="collapsible1">
+                <input id="collapsible1" type="checkbox" name="collapsible">
                 <button>
                 <label for="collapsible1">
                     <div class="bar1"></div>
@@ -24,13 +26,31 @@
                 </label>
                 </button>
                 <div class="collapsible-body">
-                <ul class="inline" id='header'>
-                    <li id='username'></li>
-                    <li id='balance-count'></li>
-                    <li><button class="login">Log Out</button></li>
-                </ul>
+                    <ul class="inline" id='header'>
+                        <li id='username'></li>
+                        <li id='balance-count'></li>
+                        
+                        
+                    </ul>
+                    
                 </div>
             </div>
+            <div id='modal-whole'>
+                <div class="row flex-spaces child-borders">
+                    <label id = 'modal-button' class="paper-btn btn-success margin" for="modal-1"><i class="far fa-bell"></i></label>
+                </div>
+                <input class="modal-state" id="modal-1" type="checkbox">
+                <div class="modal">
+                    <label class="modal-bg" for="modal-1"></label>
+                    <div class="modal-body" >
+                        <label class="btn-close" for="modal-1">X</label>
+                        <h4 class="modal-title" >Notifications:</h4>
+                        <div id= 'modal-container'></div>                          
+                        <label for="modal-1">Done</label>
+                    </div>
+                </div>
+            </div>
+            <div class='login'><i class="fas fa-door-open fa-2x" popover-bottom="Log Out"></i></div>
         </nav>
         <div class='inner-background'>
             <div class="wrapper">
@@ -44,7 +64,7 @@
                     <div id='jsc'>
                         <script src="jscolor.js"></script>
                     Line Color: <input class="jscolor" id='paint-color' value="000000">
-                    Fill Color: <input class="jscolor" id="fill-color" value="000000">
+                    Fill Color: <input class="jscolor" id="fill-color" value="FFFFFF">
                     </div>
                     <form id='info-form'>
                         <label for="title">Title:</label><br>
@@ -58,6 +78,5 @@
             </div>
         </div>
     </body>
-    <!-- <script src = "floodFill2D.js"></script> -->
     <script src="index.js"></script>
 </html>

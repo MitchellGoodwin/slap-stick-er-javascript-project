@@ -5,6 +5,11 @@ const pageTitle = document.querySelector('#page-title')
 const header = document.querySelector('#header')
 const canvas = document.createElement('canvas')
 const infoForm = document.querySelector('#info-form')
+const modalButton = document.querySelector('#modal-button')
+const modalContainer = document.querySelector('#modal-container')
+const modalWhole = document.querySelector('#modal-whole')
+
+const modalHeader = document.querySelector('#modal-1')
 
 const usernameCont = document.querySelector('#username')
 const balanceCont = document.querySelector('#balance-count')
@@ -14,11 +19,14 @@ canvas.height = "300"
 let canvasWidth = 600
 let canvasHeight = 300
 
+let selectedButton;
+
 const jscolorDiv = document.querySelector('#jsc')
 
 const jscolor = document.querySelector('#paint-color')
 const fillColor = document.querySelector('#fill-color')
 
+let savedImageData;
 
 const ctx = canvas.getContext('2d')
 ctx.strokeStyle = jscolor.value;
@@ -42,6 +50,8 @@ class ShapeBoundingBox{
         this.height = height;
     }
 }
+
+let shapeBoundingBox = new ShapeBoundingBox(0,0,0,0);
 
 // Holds x & y position where clicked
 class MouseDownPos{
@@ -95,6 +105,7 @@ function userLogin(e) {
         loginForm.remove()
         buildHeader(user.balance)
         displayGallery(user)
+        createNotificationWebsocketConnection(user.id)
     })
     e.target.reset()
 }
@@ -184,35 +195,42 @@ function displayImage(image) {
 
 function buildHeader(balance){
     const galleryLink = document.createElement('li')
-    const galleryButton = document.createElement('button')
-    galleryButton.innerText = "My Gallery"
+    const galleryButton = document.createElement('i')
+    galleryButton.className = "fas fa-palette fa-2x"
     galleryLink.className = "header-toggle"
     galleryButton.addEventListener('click', function(e){
         getGallery()
     })
     galleryLink.appendChild(galleryButton)
+    galleryButton.setAttribute("popover-bottom", 'My Gallery')
+    galleryButton.style.color = 'green'
+
 
     const stickersLink = document.createElement('li')
-    const stickersButton = document.createElement('button')
-    stickersButton.innerText = "My Stickers"
+    const stickersButton = document.createElement('i')
+    stickersButton.className = "fas fa-images fa-2x"
     stickersLink.className = "header-toggle"
     stickersButton.addEventListener('click', function(e) {
         getStickers()
     })
     stickersLink.appendChild(stickersButton)
+    stickersButton.setAttribute("popover-bottom", 'My Stickers')
+    stickersButton.style.color = 'yellow'
 
     const storeLink = document.createElement('li')
-    const storeButton = document.createElement('button')
-    storeButton.innerText = "Store"
+    const storeButton = document.createElement('i')
+    storeButton.className = "fas fa-shopping-cart fa-2x"
     storeLink.className = "header-toggle"
     storeButton.addEventListener('click', function(e) {
         renderStore()
     })
     storeLink.appendChild(storeButton)
+    storeButton.setAttribute("popover-bottom", 'Store')
+    storeButton.style.color = 'blue'
 
     const newDrawingLink = document.createElement('li')
-    const newDrawingButton = document.createElement('button')
-    newDrawingButton.innerText = "New Drawing"
+    const newDrawingButton = document.createElement('i')
+    newDrawingButton.className = "fas fa-paint-brush fa-2x"
     newDrawingLink.className = "header-toggle"
     newDrawingButton.addEventListener('click', function(e) {
         canvas.dataset.id = ''
@@ -220,6 +238,8 @@ function buildHeader(balance){
         createCanvas()
     })
     newDrawingLink.appendChild(newDrawingButton)
+    newDrawingButton.setAttribute("popover-bottom", 'New Drawing')
+    newDrawingButton.style.color = 'red'
 
     balanceCont.innerText = `Current Balance: $${balance}`
 
@@ -249,36 +269,83 @@ function createCanvas() {
     canvas.addEventListener("mouseup", ReactToMouseUp);
     canvas.addEventListener('mouseout', ReactToMouseOut);
 
+    const sliderLabel = document.createElement('p')
+    sliderLabel.innerText = 'Set Line Thickness:'
+
+    const lineSlider = document.createElement('input')
+    lineSlider.type = 'range'
+    lineSlider.min = 1
+    lineSlider.max = 10
+    lineSlider.value = 2
+    lineSlider.className = 'slider'
+    lineSlider.addEventListener('change', function(e) {
+        ctx.lineWidth = e.target.value;
+    })
+
     const brushButton = document.createElement('button')
     brushButton.innerText = "Brush"
+    brushButton.style.marginRight = '10px'
     brushButton.addEventListener('click', function(e) {
         currentTool = 'brush'
+        changeSelectedButton(e.target)
     })
+    selectedButton = brushButton;
+    brushButton.className = "btn-warning"
 
     const fillButton = document.createElement('button')
     fillButton.innerText = "Fill"
+    fillButton.style.marginRight = '10px'
     fillButton.addEventListener('click', function(e) {
         currentTool = 'fill'
+        changeSelectedButton(e.target)
+    })
+
+    const squareButton = document.createElement('button')
+    squareButton.innerText = "Square"
+    squareButton.style.marginRight = '10px'
+    squareButton.addEventListener('click', function(e) {
+        currentTool = 'square'
+        changeSelectedButton(e.target)
+    })
+
+    const circleButton = document.createElement('button')
+    circleButton.innerText = "Circle"
+    circleButton.style.marginRight = '10px'
+    circleButton.addEventListener('click', function(e) {
+        currentTool = 'circle'
+        changeSelectedButton(e.target)
     })
 
     const saveButton = document.createElement('button')
     saveButton.innerText = "Save Sticker"
+    saveButton.style.marginRight = '10px'
     saveButton.addEventListener('click', function(e) {
         SaveImage()
     })
 
     const loadButton = document.createElement('button')
     loadButton.innerText = "Load Sticker"
+    loadButton.style.marginRight = '10px'
     loadButton.addEventListener('click', function(e) {
         OpenImage()
     })
 
     currentTool = 'brush'
 
+    contents.appendChild(sliderLabel)
+    contents.appendChild(lineSlider)
     contents.appendChild(brushButton)
     contents.appendChild(fillButton)
+    contents.appendChild(squareButton)
+    contents.appendChild(circleButton)
     contents.appendChild(saveButton)
     contents.appendChild(loadButton)
+}
+
+function changeSelectedButton(button) {
+    selectedButton.className = ''
+    selectedButton = button
+    selectedButton.className = "btn-warning"
 }
 
 function GetMousePosition(x,y){
@@ -316,6 +383,7 @@ function SaveImage(){
         })
         .then(function(image) {
             canvas.dataset.id = image.id
+            renderImageInfo(image)
         })
     }
 }
@@ -356,9 +424,16 @@ function UpdateRubberbandSizeData(loc){
 
 
 function drawRubberbandShape(loc){
-    ctx.strokeStyle = jsColor;
-    ctx.fillStyle = fillColor;
-    DrawBrush();
+    if (currentTool === 'square') {
+        ctx.fillRect(shapeBoundingBox.left, shapeBoundingBox.top, shapeBoundingBox.width, shapeBoundingBox.height)
+        ctx.strokeRect(shapeBoundingBox.left, shapeBoundingBox.top, shapeBoundingBox.width, shapeBoundingBox.height)
+    } else if (currentTool === 'circle') {
+        let radius = shapeBoundingBox.width;
+        ctx.beginPath();
+        ctx.arc(mousedown.x, mousedown.y, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+    }
 }
 
 function AddBrushPoint(x, y, mouseDown){
@@ -386,6 +461,7 @@ function ReactToMouseDown(e){
     canvas.style.cursor = "crosshair";
     lastMouseDown = brushXPoints.length
     ctx.strokeStyle = `#${jscolor.value}`
+    ctx.fillStyle = `#${fillColor.value}`
     
     loc = GetMousePosition(e.clientX, e.clientY);
 
@@ -406,6 +482,9 @@ function ReactToMouseDown(e){
         let b = parseInt(fillColorB);
         var hex = (255   << 24) | ( b << 16) | ( g << 8) | r;
         floodFill(loc.x, loc.y, (hex >>> 0))
+    } else if (currentTool === 'square' || currentTool === 'circle') {
+        savedImageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+        dragging = true;
     }
 };
 
@@ -424,6 +503,13 @@ function ReactToMouseMove(e){
         }
     }
 };
+
+function UpdateRubberbandOnMove(loc){
+    ctx.putImageData(savedImageData,0,0);
+    UpdateRubberbandSizeData(loc);
+
+    drawRubberbandShape(loc);
+}
 
 function ReactToMouseUp(e){
     canvas.style.cursor = "default";
@@ -633,33 +719,8 @@ function buySticker(e) {
     .then(function(purchases) {
         if (purchases[0].image.user.id !== login.dataset.id) {
             let amount = (purchases.length * parseFloat(purchases[0].image.cost))
-            let sellerBalance = parseFloat(purchases[0].image.user.balance) + amount
             let buyerBalance = parseFloat(purchases[0].user.balance) - amount
-            sellerId = purchases[0].image.user.id
-            console.log(purchases)
-            let configObj = {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({"balance": sellerBalance})
-            };
-            fetch(`http://localhost:3000/users/${sellerId}`, configObj)
-            
-            let configObj2 = {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({"balance": buyerBalance})
-            };
-            fetch(`http://localhost:3000/users/${login.dataset.id}`, configObj2)
-            .then(function(response) {
-                return response.json();
-            })
-            .then(function(user) {
-                document.querySelector('#balance-count').innerText = `Current Balance: $${user.balance}`
-            })
+            document.querySelector('#balance-count').innerText = `Current Balance: $${buyerBalance}`
         }
     })
 }
@@ -737,7 +798,7 @@ function floodFill(x, y, newColor) {
                 if (p32[idx - 1] === targetColor) { // check left
                     if (!left) {        
                         stack.push(idx - 1);  // found new column to left
-                        left = true;  // 
+                        left = true;  
                     }
                 } else if (left) { left = false }
             }
@@ -754,4 +815,69 @@ function floodFill(x, y, newColor) {
     }
     ctx.putImageData(imgData,0, 0);
     return;
+}
+
+let webSocketUrl = 'ws://localhost:3000/cable'
+
+
+function createNotificationWebsocketConnection(userid) {
+    
+    
+    socket = new WebSocket(webSocketUrl);
+    
+    socket.onopen = function(event) {
+        console.log('WebSocket is connected.');
+        const msg = {
+            command: 'subscribe',
+            identifier: JSON.stringify({
+                id: userid,
+                channel: 'NotificationChannel'
+            }),
+        };
+        socket.send(JSON.stringify(msg));
+    };
+    
+
+    socket.onclose = function(event) {
+        console.log('WebSocket is closed.');
+    };
+    
+    socket.onmessage = function(event) {            
+        const response = event.data;
+        const msg = JSON.parse(response);
+        
+        if (msg.type === "ping") {
+            return;
+        }
+        console.log(msg)
+        if (msg.type !== 'welcome' && msg.type !== "confirm_subscription") {
+            createNotification(msg.message.message);
+            document.querySelector('#balance-count').innerText = `Current Balance: $${msg.message.balance}`
+        }
+        
+    };
+    
+    socket.onerror = function(error) {
+        console.log('WebSocket Error: ' + error);
+    };
+}
+
+function createNotification(message) {
+    modalButton.className = 'paper-btn btn-danger margin'
+    modalButton.addEventListener('click', changeButtonBack)
+
+    const notTitle = document.createElement('h5')
+    notTitle.innerText = 'New Purchase'
+    notTitle.className = "modal-subtitle"
+
+    const notText = document.createElement('p')
+    notText.className = "modal-text"
+    notText.innerText = message
+
+    modalContainer.appendChild(notTitle)
+    modalContainer.appendChild(notText)
+}
+
+function changeButtonBack() {
+    document.querySelector('#modal-button').className = "paper-btn btn-success margin"
 }

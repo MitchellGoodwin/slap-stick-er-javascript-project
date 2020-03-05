@@ -6,7 +6,7 @@ body, html {
 
 .inner-background{
     background-color: white;
-    padding-top: 100px;
+    padding-top: 120px;
     margin: auto;
     height: 100%;
     position: absolute;
@@ -79,4 +79,8 @@ body, html {
     padding-top: 120px;
     padding-bottom: 120px;
     margin-top: 50px;
+}
+
+.slider {
+    background-color: black;
 }
