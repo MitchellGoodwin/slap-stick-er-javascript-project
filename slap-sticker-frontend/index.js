@@ -918,7 +918,7 @@ function floodFill(x, y, newColor) {
     return;
 }
 
-let webSocketUrl = 'ws://localhost:3000/cable'
+let webSocketUrl = "wss://slap-sticker.herokuapp.com/cable"
 
 
 function createNotificationWebsocketConnection(userid) {
