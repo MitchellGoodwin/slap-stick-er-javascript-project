@@ -7,4 +7,4 @@ test:
 production:
   adapter: redis
   url: redis://h:p2436141a118a864d0e5812f79227764dbb56a5203728575f620bce9f0c4886e3@ec2-34-237-28-125.compute-1.amazonaws.com:25089
-  # channel_prefix: slap_sticker_backend_production
+  channel_prefix: slap_sticker_backend_production
