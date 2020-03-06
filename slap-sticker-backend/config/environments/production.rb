@@ -83,8 +83,9 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   config.action_cable.allowed_request_origins = [
-    'https://slap-sticker.herokuapp.com/slap-sticker-frontend/index.html',
+    'https://slap-sticker.herokuapp.com/', 'http://slap-sticker.herokuapp.com/',
   ]
+  config.web_socket_server_url = "wss://slap-sticker.herokuapp.com/cable" 
   # Inserts middleware to perform automatic connection switching.
   # The `database_selector` hash is used to pass options to the DatabaseSelector
   # middleware. The `delay` is used to determine how long to wait after a write
