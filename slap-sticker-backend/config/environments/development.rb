@@ -52,6 +52,6 @@ Rails.application.configure do
 
   config.action_cable.allowed_request_origins = [
     # Local address we use for our standalone client
-    'file://',
+    'https://slap-sticker.herokuapp.com/slap-sticker-frontend/index.html',
   ]
 end
