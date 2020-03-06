@@ -65,6 +65,7 @@ body, html {
 
 .sticker-display {
     border: 3px solid #000000;
+    background-color: white;
 }
 
 #page-contents {
@@ -83,4 +84,8 @@ body, html {
 
 .slider {
     background-color: black;
+}
+
+.lower-card {
+    display: inline-block;
 }

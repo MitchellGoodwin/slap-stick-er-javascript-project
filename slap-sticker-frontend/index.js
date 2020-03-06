@@ -705,6 +705,9 @@ function renderStoreItem(image) {
     seller.className = 'card-subtitle'
     salePrice.className = 'card-text'
 
+    const storeDiv = document.createElement('div')
+    storeDiv.className = 'lower-card'
+
     const buyForm = document.createElement('form')
     buyForm.dataset.id = image.id
 
@@ -728,13 +731,74 @@ function renderStoreItem(image) {
         e.target.reset()
     })
 
+    storeDiv.appendChild(buyForm)
+
+
+    if (login.dataset.id != image.user.id) {
+        const followButton = document.createElement('button')
+        if (image.user['following_users'].map(function(follower) {return follower['follower_id']}).includes(parseInt(login.dataset.id))) {
+            followButton.innerText = "Unfollow Artist"
+            let follower = image.user['following_users'].filter(function(follow) {return follow['follower_id'] == login.dataset.id})[0]
+            followButton.dataset.followId = follower.id
+        } else {
+            followButton.innerText = "Follow Artist"
+        }
+        followButton.className = "btn-success"
+        followButton.dataset.artistId = image.user.id
+        followButton.addEventListener('click', function(e){
+            toggleFollow(e)
+        })
+        storeDiv.appendChild(followButton)
+    }
+    
+
     cardBody.appendChild(imgTitle)
     cardBody.appendChild(seller)
     cardBody.appendChild(salePrice)
-    cardBody.appendChild(buyForm)
+    
+    
+    cardBody.appendChild(storeDiv)
 
 
     return imageCard
+}
+
+function toggleFollow(e) {
+    if (e.target.innerText === "Follow Artist") {
+        let configObj = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "artist_id": e.target.dataset.artistId,
+                "follower_id": login.dataset.id
+            })
+        };
+        fetch("http://localhost:3000/follows", configObj)
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(follow) {
+            e.target.innerText = "Unfollow Artist"
+            e.target.dataset.followId = follow.id
+        }) 
+    } else {
+        let configObj = {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        };
+        fetch(`http://localhost:3000/follows/${e.target.dataset.followId}`, configObj)
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(follow) {
+            e.target.innerText = "Follow Artist"
+            e.target.dataset.followId = ''
+        }) 
+    }
 }
 
 function buySticker(e) {
@@ -888,8 +952,7 @@ function createNotificationWebsocketConnection(userid) {
         }
         console.log(msg)
         if (msg.type !== 'welcome' && msg.type !== "confirm_subscription") {
-            createNotification(msg.message.message);
-            document.querySelector('#balance-count').innerText = `Current Balance: $${msg.message.balance}`
+            createNotification(msg.message);
         }
         
     };
@@ -904,12 +967,16 @@ function createNotification(message) {
     modalButton.addEventListener('click', changeButtonBack)
 
     const notTitle = document.createElement('h5')
-    notTitle.innerText = 'New Purchase'
+    notTitle.innerText = message.type
     notTitle.className = "modal-subtitle"
 
     const notText = document.createElement('p')
     notText.className = "modal-text"
-    notText.innerText = message
+    notText.innerText = message.message
+
+    if (message.type === 'New Purchase') {
+        document.querySelector('#balance-count').innerText = `Current Balance: $${message.balance}`
+    }
 
     modalContainer.appendChild(notTitle)
     modalContainer.appendChild(notText)

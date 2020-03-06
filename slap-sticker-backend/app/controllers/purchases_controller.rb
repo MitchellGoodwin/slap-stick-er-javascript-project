@@ -12,7 +12,7 @@ class PurchasesController < ApplicationController
         cost = image.cost * params[:amount]
         buyer.balance = buyer.balance - cost
         balance = "#{seller.balance + cost}"
-        message = {message: "#{buyer.username} bought your #{image.title} #{params[:amount]} times for a total of $#{cost}.", balance: balance}
+        message = {message: "#{buyer.username} bought your #{image.title} #{params[:amount]} times for a total of $#{cost}.", balance: balance, type: 'New Purchase'}
         NotificationChannel.broadcast_to(seller, message)
         render json: purchases.to_json(:include => {:image => {:include => :user, :only => [:id, :balance, :cost]}, :user => {:only => :balance}})
     end

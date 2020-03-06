@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   resources :purchases
   resources :users
   resources :images
+  resources :follows
   get '/users/stickers/:id', to: 'users#stickers'
 
   mount ActionCable.server => '/cable'
