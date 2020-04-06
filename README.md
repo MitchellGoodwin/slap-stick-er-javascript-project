@@ -1,6 +1,6 @@
 # SlapSticker Project
 
-[Link to heroku](https://slap-sticker.herokuapp.com/slap-sticker-frontend/index.html)
+
 
 ## Project Description
 Hello, and welcome to my app. This is SlapStick.er, a single page app made mostly in javascript. The idea behind the page, is to make a site where users can draw their own stickers, then buy and sell drawn stickers with other users. I decided to make this page as practice for javascript and front-end web design in general. As this is something focused on the front-end, I decided to make something artsy!
